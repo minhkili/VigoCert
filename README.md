@@ -26,6 +26,7 @@ Real-time Integrity: SHA-256 browser-side verification ensures data hasn't been 
 
 Dispute Resolution: Public anchoring provides "Sovereign Grade" proof for European auditors
 
+Shelby Integration: Shelby provides S3-compatible APIs, cross-stack SDKs for React/Ethereum/Solana, a media toolkit for AI content distribution, and AI agent tools based on the Shelby MCP server. (Shelby.xyz)
 
 
 

@@ -1,0 +1,34 @@
+// When EU auditor wants to verify a shipment 
+async function verifyShipment(trustPassportId: string) {
+  // 1. Get record from Vigo Ledger
+  const record = await vigoLedger.getRecord(trustPassportId)
+  
+  // 2. Retrieve original file from Shelby
+  const originalPhoto = await shelbyClient.retrieve(record.shelby_cid)
+  
+  // 3. Verify integrity (SHA-256)
+  const currentHash = await computeSHA256(originalPhoto)
+  const isIntact = currentHash === record.sha256
+  
+  return {
+    verified: isIntact,
+    photo_url: record.shelby_url,
+    gps_proof: record.gps,
+    blockchain_anchor: record.vigo_mainnet_tx,
+  }
+}
+```
+
+---
+
+## 📐 General architecture after integration
+```
+FARMER (Mobile App)
+    ↓ Image + GPS
+EDGE AI (validation)
+    ↓ Verified Image
+SHELBY.XYZ ←── Decentralized Storage (images, documents)
+    ↓ CID / URL
+VIGO LEDGER ENTERPRISE ←── Smart contract saved metadata + CID
+    ↓ Daily anchor
+VIGO LEDGER MAINNET ←── Public proof for EU auditors

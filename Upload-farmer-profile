@@ -1,0 +1,30 @@
+// When farmer upload image from Trust Passport App
+async function uploadFarmerEvidence(
+  photoBlob: Blob,
+  metadata: {
+    farmerId: string
+    gpsLat: number
+    gpsLng: number
+    commodity: 'coffee' | 'rubber' | 'wood'
+    timestamp: string
+  }
+) {
+  // 1. Upload image to Shelby (decentralized storage)
+  const file = new File([photoBlob], `evidence_${metadata.farmerId}.jpg`)
+  const uploadResult = await shelbyClient.upload(file)
+  
+  // 2. Save Shelby CID + metadata to Vigo Ledger (private blockchain)
+  const trustPassport = {
+    shelby_cid: uploadResult.cid,       // Content ID on Shelby
+    shelby_url: uploadResult.url,        // URL quick export
+    farmer_id: metadata.farmerId,
+    gps: { lat: metadata.gpsLat, lng: metadata.gpsLng },
+    sha256: await computeSHA256(photoBlob), // Integrity check
+    timestamp: metadata.timestamp,
+  }
+  
+  // 3. Anchor to Vigo Ledger Enterprise (smart contract)
+  await vigoLedger.mintTrustPassport(trustPassport)
+  
+  return trustPassport
+}
